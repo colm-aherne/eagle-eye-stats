@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Lock } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { suggestCourses, type CourseSuggestion } from "@/lib/suggest-courses.functions";
+import { useIsSignedIn } from "@/lib/use-session";
 
 type Props = {
   value: string;
@@ -32,8 +34,14 @@ export function CourseSearchInput({
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState(false);
   const pickedRef = useRef<string | null>(null);
+  const signedIn = useIsSignedIn();
 
   useEffect(() => {
+    if (!signedIn) {
+      setSuggestions([]);
+      setLoading(false);
+      return;
+    }
     // If the user just picked a suggestion whose exact name matches, don't fetch again
     if (pickedRef.current && pickedRef.current === value) return;
     const q = value.trim();
@@ -58,7 +66,7 @@ export function CourseSearchInput({
       cancelled = true;
       clearTimeout(t);
     };
-  }, [value, holes]);
+  }, [value, holes, signedIn]);
 
   function handlePick(s: CourseSuggestion) {
     pickedRef.current = s.name;
@@ -67,7 +75,8 @@ export function CourseSearchInput({
     onPick?.(s);
   }
 
-  const showList = focused && (loading || suggestions.length > 0);
+  const showSignInHint = focused && !signedIn && value.trim().length >= 2;
+  const showList = focused && signedIn && (loading || suggestions.length > 0);
 
   return (
     <div className={`relative ${className ?? ""}`}>
@@ -83,6 +92,19 @@ export function CourseSearchInput({
         placeholder={placeholder}
         autoFocus={autoFocus}
       />
+      {showSignInHint && (
+        <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-md border bg-popover p-3 text-xs shadow-md">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Lock className="h-3 w-3" />
+            <span>
+              <Link to="/auth" className="font-medium text-foreground underline underline-offset-2">
+                Sign in
+              </Link>{" "}
+              to search courses. You can still type a name manually.
+            </span>
+          </div>
+        </div>
+      )}
       {showList && (
         <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-64 overflow-y-auto rounded-md border bg-popover shadow-md">
           {loading && (
