@@ -142,3 +142,9 @@
     color: var(--color-foreground);
   }
 }
+
+@layer base {
+  main {
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+  }
+}
