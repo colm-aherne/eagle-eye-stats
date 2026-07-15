@@ -254,7 +254,13 @@ function RoundPage() {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <button
-                onClick={() => cameraRef.current?.click()}
+                onClick={() => {
+                  if (!signedIn) {
+                    navigate({ to: "/auth" });
+                    return;
+                  }
+                  cameraRef.current?.click();
+                }}
                 disabled={scanning}
                 className="flex flex-col items-center gap-2 rounded-xl border-2 border-border bg-card p-5 text-center transition-colors hover:border-primary/60 hover:bg-accent/40 disabled:opacity-60"
               >
@@ -262,10 +268,18 @@ function RoundPage() {
                   {scanning ? <Loader2 className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
                 </span>
                 <span className="text-sm font-semibold">Take photo</span>
-                <span className="text-[11px] text-muted-foreground">Use your camera</span>
+                <span className="text-[11px] text-muted-foreground">
+                  {signedIn ? "Use your camera" : "Sign in required"}
+                </span>
               </button>
               <button
-                onClick={() => fileRef.current?.click()}
+                onClick={() => {
+                  if (!signedIn) {
+                    navigate({ to: "/auth" });
+                    return;
+                  }
+                  fileRef.current?.click();
+                }}
                 disabled={scanning}
                 className="flex flex-col items-center gap-2 rounded-xl border-2 border-border bg-card p-5 text-center transition-colors hover:border-primary/60 hover:bg-accent/40 disabled:opacity-60"
               >
@@ -273,7 +287,9 @@ function RoundPage() {
                   {scanning ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
                 </span>
                 <span className="text-sm font-semibold">Upload image</span>
-                <span className="text-[11px] text-muted-foreground">Pick from library</span>
+                <span className="text-[11px] text-muted-foreground">
+                  {signedIn ? "Pick from library" : "Sign in required"}
+                </span>
               </button>
               <button
                 onClick={() => setEntryStarted(true)}
