@@ -344,7 +344,13 @@ function RoundPage() {
                   variant="outline"
                   size="sm"
                   className="flex-col gap-1 h-auto py-2 px-1 sm:flex-row sm:h-9 sm:py-2 sm:px-3"
-                  onClick={() => cameraRef.current?.click()}
+                  onClick={() => {
+                    if (!signedIn) {
+                      navigate({ to: "/auth" });
+                      return;
+                    }
+                    cameraRef.current?.click();
+                  }}
                   disabled={scanning}
                 >
                   {scanning ? (
@@ -352,17 +358,27 @@ function RoundPage() {
                   ) : (
                     <ScanLine className="h-4 w-4" />
                   )}
-                  <span className="text-[11px] sm:text-sm sm:ml-2">Rescan</span>
+                  <span className="text-[11px] sm:text-sm sm:ml-2">
+                    {signedIn ? "Rescan" : "Sign in to rescan"}
+                  </span>
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   className="flex-col gap-1 h-auto py-2 px-1 sm:flex-row sm:h-9 sm:py-2 sm:px-3"
-                  onClick={() => fileRef.current?.click()}
+                  onClick={() => {
+                    if (!signedIn) {
+                      navigate({ to: "/auth" });
+                      return;
+                    }
+                    fileRef.current?.click();
+                  }}
                   disabled={scanning}
                 >
                   <Upload className="h-4 w-4" />
-                  <span className="text-[11px] sm:text-sm sm:ml-2">Upload image</span>
+                  <span className="text-[11px] sm:text-sm sm:ml-2">
+                    {signedIn ? "Upload image" : "Sign in to upload"}
+                  </span>
                 </Button>
                 <Button
                   variant="secondary"
