@@ -438,6 +438,7 @@ function NewRoundDialog({
   onStart,
   defaultCourse,
   pendingUpload,
+  signedIn,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -450,6 +451,7 @@ function NewRoundDialog({
   ) => void;
   defaultCourse?: HomeCourse | null;
   pendingUpload?: boolean;
+  signedIn?: boolean;
 }) {
   const [holes, setHoles] = useState<9 | 18>(18);
   const [tee, setTee] = useState<TeeColor>("white");
@@ -469,6 +471,11 @@ function NewRoundDialog({
   }, [open, defaultCourse]);
 
   useEffect(() => {
+    if (!signedIn) {
+      setSuggestions([]);
+      setLoading(false);
+      return;
+    }
     if (picked && picked.name === query) return;
     const q = query.trim();
     if (q.length < 2) {
@@ -491,7 +498,7 @@ function NewRoundDialog({
       cancelled = true;
       clearTimeout(t);
     };
-  }, [query, holes, picked]);
+  }, [query, holes, picked, signedIn]);
 
   function pick(s: CourseSuggestion) {
     setPicked(s);
@@ -538,7 +545,15 @@ function NewRoundDialog({
                 placeholder="Start typing a course name…"
                 autoFocus
               />
-              {(loading || suggestions.length > 0) && !picked && (
+              {!signedIn && query.trim().length >= 2 && !picked && (
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  <Link to="/auth" className="font-medium text-foreground underline underline-offset-2">
+                    Sign in
+                  </Link>{" "}
+                  to search courses, or just type the name manually.
+                </p>
+              )}
+              {signedIn && (loading || suggestions.length > 0) && !picked && (
                 <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-64 overflow-y-auto rounded-md border bg-popover shadow-md">
                   {loading && (
                     <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
