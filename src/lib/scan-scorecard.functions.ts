@@ -1,8 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+// 8 MB raw image → ~10.7 MB base64. Add a bit of headroom for the data-URL
+// prefix and rounding, and cap the whole string at ~12 MB so oversized
+// payloads are rejected server-side too, not just in the client.
+const MAX_IMAGE_DATA_URL = 12 * 1024 * 1024;
 
 const Input = z.object({
-  imageDataUrl: z.string().min(20),
+  imageDataUrl: z.string().min(20).max(MAX_IMAGE_DATA_URL),
   holes: z.union([z.literal(9), z.literal(18)]),
   playerName: z.string().trim().max(120).optional(),
 });
@@ -16,6 +22,7 @@ export type ScanResult = {
 };
 
 export const scanScorecard = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => Input.parse(d))
   .handler(async ({ data }): Promise<ScanResult> => {
     const key = process.env.LOVABLE_API_KEY;
