@@ -11,6 +11,7 @@ import { STORAGE_KEY, TEE_META, type Round, type TeeColor } from "@/lib/round-ty
 import { useSavedRounds } from "@/lib/use-saved-rounds";
 import { useSettings, convertDistance, unitLabel, THEME_KEY } from "@/lib/settings";
 import { scanScorecard } from "@/lib/scan-scorecard.functions";
+import { useIsSignedIn } from "@/lib/use-session";
 
 const PLAYER_NAME_KEY = "fairway.playerName";
 export const PENDING_SCAN_KEY = "eagleeye.pendingScan.v1";
@@ -43,6 +44,7 @@ function RoundPage() {
   const navigate = useNavigate();
   const { upsert } = useSavedRounds();
   const { unit } = useSettings();
+  const signedIn = useIsSignedIn();
   const [round, setRound] = useState<Round | null>(null);
   const [entryStarted, setEntryStarted] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -78,6 +80,11 @@ function RoundPage() {
   }, [round]);
 
   async function runScan(dataUrl: string, r: Round) {
+    if (!signedIn) {
+      toast.message("Sign in to scan scorecards");
+      navigate({ to: "/auth" });
+      return;
+    }
     setScanning(true);
     try {
       const result = await scanScorecard({
@@ -112,13 +119,23 @@ function RoundPage() {
     if (pending) {
       autoRanRef.current = true;
       sessionStorage.removeItem(PENDING_SCAN_KEY);
-      runScan(pending, round);
+      if (signedIn) {
+        runScan(pending, round);
+      } else {
+        toast.message("Sign in to scan the uploaded card");
+        navigate({ to: "/auth" });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [round]);
+  }, [round, signedIn]);
 
   async function handleFile(file: File) {
     if (!round) return;
+    if (!signedIn) {
+      toast.message("Sign in to scan scorecards");
+      navigate({ to: "/auth" });
+      return;
+    }
     if (file.size > 8 * 1024 * 1024) {
       toast.error("Image too large (max 8MB)");
       return;
