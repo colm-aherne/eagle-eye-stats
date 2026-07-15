@@ -15,6 +15,7 @@ import { rememberCourseLocation } from "@/lib/course-locations";
 import { BrandHeader } from "@/components/BrandHeader";
 
 import { CourseSearchInput } from "@/components/CourseSearchInput";
+import { useIsSignedIn } from "@/lib/use-session";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
