@@ -249,8 +249,14 @@ function Index() {
                 <WidgetTile
                   icon={<ScanLine className="h-5 w-5" />}
                   label="Upload card"
-                  hint="Add the photo first, then round info"
-                  onClick={() => uploadRef.current?.click()}
+                  hint={signedIn ? "Add the photo first, then round info" : "Sign in to scan cards"}
+                  onClick={() => {
+                    if (!signedIn) {
+                      navigate({ to: "/auth" });
+                      return;
+                    }
+                    uploadRef.current?.click();
+                  }}
                   loading={uploading}
                 />
               )}
