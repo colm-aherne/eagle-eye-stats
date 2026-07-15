@@ -333,6 +333,7 @@ function Index() {
         onStart={startRound}
         defaultCourse={homeCourse}
         pendingUpload={!!pendingUploadRef.current}
+        signedIn={signedIn}
       />
 
       <Dialog
