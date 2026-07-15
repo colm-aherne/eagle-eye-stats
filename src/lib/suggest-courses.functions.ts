@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Input = z.object({
   query: z.string().min(1).max(120),
@@ -21,6 +22,7 @@ export type CourseSuggestion = {
 };
 
 export const suggestCourses = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => Input.parse(d))
   .handler(async ({ data }): Promise<{ suggestions: CourseSuggestion[] }> => {
     const key = process.env.LOVABLE_API_KEY;
