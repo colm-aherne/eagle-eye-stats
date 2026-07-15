@@ -44,6 +44,7 @@ function Index() {
   const navigate = useNavigate();
   const { rounds: saved } = useSavedRounds();
   useSettings();
+  const signedIn = useIsSignedIn();
   const { homeCourse, setHomeCourse } = useHomeCourse();
   const { prefs: widgets } = useWidgetPrefs();
   const [showNew, setShowNew] = useState(false);
@@ -152,6 +153,11 @@ function Index() {
   }
 
   async function handleUploadFile(file: File) {
+    if (!signedIn) {
+      toast.message("Sign in to scan scorecards");
+      navigate({ to: "/auth" });
+      return;
+    }
     if (file.size > 8 * 1024 * 1024) {
       toast.error("Image too large (max 8MB)");
       return;
